@@ -107,6 +107,8 @@
   - [Troubleshoot Write Conflicts in Optimistic Transactions](/troubleshoot-write-conflicts.md)
   - [Troubleshoot Inconsistency Between Data and Indexes](/troubleshoot-data-inconsistency-errors.md)
 - Performance Tuning
+  -Tuning Guide
+    - [Performance Tuning Methods](/performance-tuning-methods.md)
   - System Tuning
     - [Operating System Tuning](/tune-operating-system.md)
   - Software Tuning
