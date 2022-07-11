@@ -832,7 +832,13 @@
       - [Titan Configuration](/storage-engine/titan-configuration.md)
     - TiFlash
       - [Overview](/tiflash/tiflash-overview.md)
-      - [Use TiFlash](/tiflash/use-tiflash.md)
+      - [Create TiFlash Replicas](/tiflash/create-tiflash-replicas.md)
+      - [Use TiDB to Read TiFlash Replicas](/tiflash/use-tidb-to-read-tiflash.md)
+      - [Use TiSpark to Read TiFlash Replicas](/tiflash/use-tispark-to-read-tiflash.md)
+      - [Use MPP Mode](/tiflash/use-tiflash-mpp-mode.md)
+      - [Supported Push-down Calculations](/tiflash/tiflash-supported-pushdown-calculations.md)
+      - [Data Validation](/tiflash/tiflash-data-validation.md)
+      - [Compatibility](/tiflash/tiflash-compatibility.md)
   - [Telemetry](/telemetry.md)
   - [Errors Codes](/error-codes.md)
   - [Table Filter](/table-filter.md)
@@ -856,6 +862,7 @@
   - v6.0
     - [6.0.0-DMR](/releases/release-6.0.0-dmr.md)
   - v5.4
+    - [5.4.2](/releases/release-5.4.2.md)
     - [5.4.1](/releases/release-5.4.1.md)
     - [5.4.0](/releases/release-5.4.0.md)
   - v5.3
