@@ -4,13 +4,13 @@
 - [Docs Home](/_docHome.md)
 - About TiDB
   - [TiDB Introduction](/overview.md)
-  - [TiDB 6.1 Release Notes](/releases/release-6.1.0.md)
+  - [TiDB 6.2 Release Notes](/releases/release-6.2.0.md)
   - [Basic Features](/basic-features.md)
   - [Experimental Features](/experimental-features.md)
   - Benchmarks
-    - [v6.1 Sysbench Performance Test Report](/benchmark/benchmark-sysbench-v6.1.0-vs-v6.0.0.md)
-    - [v6.1 TPC-C Performance Test Report](/benchmark/v6.1-performance-benchmarking-with-tpcc.md)
-    - [Performance Comparison between TiFlash and Greenplum/Spark](/benchmark/v6.1-performance-benchmarking-with-tpch.md)
+    - [v6.2 Sysbench Performance Test Report](/benchmark/benchmark-sysbench-v6.2.0-vs-v6.1.0.md)
+    - [v6.2 TPC-C Performance Test Report](/benchmark/v6.2-performance-benchmarking-with-tpcc.md)
+    - [Performance Comparison between TiFlash and Greenplum/Spark](/benchmark/v6.2-performance-benchmarking-with-tpch.md)
   - [MySQL Compatibility](/mysql-compatibility.md)
   - [TiDB Limitations](/tidb-limitations.md)
   - [Credits](/credits.md)
@@ -475,6 +475,13 @@
       - [Back Up and Restore Data on Google Cloud Storage Using BR](/br/backup-storage-gcs.md)
       - [Back Up and Restore RawKV](/br/rawkv-backup-and-restore.md)
       - [BR FAQs](/br/backup-and-restore-faq.md)
+  - Point-in-Time Recovery
+    - [PITR Overview](/br/point-in-time-recovery.md)
+    - [Use PITR via CLI](/br/br-log-command-line.md)
+    - [Usage Scenarios](/br/pitr-usage.md)
+    - [Monitoring and Alert](/br/pitr-monitoring-and-alert.md)
+    - [Troubleshooting](/br/pitr-troubleshoot.md)
+    - [Known Issues](/br/pitr-known-issues.md)
   - TiDB Binlog
     - [Overview](/tidb-binlog/tidb-binlog-overview.md)
     - [Quick Start](/tidb-binlog/get-started-with-tidb-binlog.md)
@@ -875,6 +882,8 @@
   - [Release Timeline](/releases/release-timeline.md)
   - [TiDB Versioning](/releases/versioning.md)
   - [TiDB Installation Packages](/binary-package.md)
+  - v6.2
+    - [6.2.0](/releases/release-6.2.0.md)
   - v6.1
     - [6.1.0](/releases/release-6.1.0.md)
   - v6.0
