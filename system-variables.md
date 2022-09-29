@@ -890,6 +890,8 @@ MPP is a distributed computing framework provided by the TiFlash engine, which a
 
 > **Warning:**
 >
+> Currently, acceleration of `ADD INDEX` and `CREATE INDEX` is an experimental feature. It is not recommended that you use it in production environments.
+>
 > Currently, this feature is not compatible with [PITR (Point-in-time recovery)](/br/point-in-time-recovery.md). When using index acceleration, you need to ensure that there are no PITR log backup tasks running in the background. Otherwise, unexpected behaviors might occur, including:
 >
 > - If you start a log backup task first, and then add an index. The adding index process is not accelerated even if index acceleration is enabled. But the index is added in a slow way.
@@ -1389,12 +1391,13 @@ MPP is a distributed computing framework provided by the TiFlash engine, which a
 - Scope: SESSION | GLOBAL
 - Persists to cluster: Yes
 - Type: Boolean
-- Default value: `ON`
+- Default value: `OFF`
 - This variable controls whether to enable the dynamic memory control feature for the operator that reads data. By default, this operator enables the maximum number of threads that [`tidb_distsql_scan_concurrency`](/system-variables.md#tidb_distsql_scan_concurrency) allows to read data. When the memory usage of a single SQL statement exceeds [`tidb_mem_quota_query`](/system-variables.md#tidb_mem_quota_query) each time, the operator that reads data stops one thread.
 
 <CustomContent platform="tidb">
 
 - When the operator that reads data has only one thread left and the memory usage of a single SQL statement continues to exceed [`tidb_mem_quota_query`](/system-variables.md#tidb_mem_quota_query), this SQL statement triggers other memory control behaviors, such as [spilling data to disk](/tidb-configuration-file.md#oom-use-tmp-storage).
+- This variable controls memory usage effectively when an SQL statement only reads data. If computing operations (such as join or aggregation operations) are required, memory usage might not be under the control of `tidb_mem_quota_query`, which increases the risk of OOM.
 
 </CustomContent>
 
@@ -1989,6 +1992,13 @@ For a system upgraded to v5.0 from an earlier version, if you have not modified 
     - The transaction commit mode, which might be a two-phase, one-phase, or async commit.
     - The information of transaction fallback from async commit or one-phase commit to two-phase commit.
     - The error encountered.
+
+### `tidb_last_plan_replayer_token` <span class="version-mark">New in v6.3.0</span>
+
+- Scope：SESSION
+- Persists to cluster: No
+- Type: String
+- This variable is read-only and is used to obtain the result of the last `PLAN REPLAYER DUMP` execution in the current session.
 
 ### tidb_log_file_max_days <span class="version-mark">New in v5.3.0</span>
 
@@ -3147,7 +3157,7 @@ For details, see [Identify Slow Queries](/identify-slow-queries.md).
     * There are not many TiDB instances in the cluster, but every TiDB instance is in high concurrency.
 - It is recommended to set this variable to a value as small as possible.
 
-> **Notes:**
+> **Note:**
 >
 > Suppose that the TSO RPC latency increases for reasons other than a CPU usage bottleneck of the PD leader (such as network issues). In this case, increasing the value of `tidb_tso_client_batch_max_wait_time` might increase the execution latency in TiDB and affect the QPS performance of the cluster.
 
