@@ -1816,7 +1816,7 @@ For a system upgraded to v5.0 from an earlier version, if you have not modified 
 - Persists to cluster: No, only applicable to the current TiDB instance that you are connecting to.
 - Default value: `NO_PRIORITY`
 - This variable is used to change the default priority for statements executed on a TiDB server. A use case is to ensure that a particular user that is performing OLAP queries receives lower priority than users performing OLTP queries.
-- You can set the value of this variable to `NO_PRIORITY`, `LOW_PRIORITY`, `DELAYED` or `HIGH_PRIORITY`.
+- The default value `NO_PRIORITY` means that the priority for statements is not forced to change. Other options are `LOW_PRIORITY`, `DELAYED`, and `HIGH_PRIORITY` in ascending order.
 
 ### `tidb_generate_binary_plan` <span class="version-mark">New in v6.2.0</span>
 
@@ -3453,6 +3453,14 @@ For details, see [Identify Slow Queries](/identify-slow-queries.md).
 ### tx_isolation
 
 This variable is an alias for `transaction_isolation`.
+
+### tx_isolation_one_shot
+
+> **Note:**
+>
+> This variable is internally used in TiDB. You are not expected to use it.
+
+Internally, the TiDB parser transforms the `SET TRANSACTION ISOLATION LEVEL [READ COMMITTED| REPEATABLE READ | ...]` statements to `SET @@SESSION.TX_ISOLATION_ONE_SHOT = [READ COMMITTED| REPEATABLE READ | ...]`.
 
 ### version
 
