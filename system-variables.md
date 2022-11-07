@@ -321,6 +321,12 @@ This variable is an alias for [`last_insert_id`](#last_insert_id).
 - Default value: `OFF`
 - This variable is used to show whether the execution plan used in the previous `execute` statement is taken directly from the plan cache.
 
+### `last_sql_use_alloc` <span class="version-mark">New in v6.4.0</span>
+
+- Scope: SESSION
+- Default value: `OFF`
+- This variable is read-only. It is used to show whether the previous statement uses a cached chunk object (chunk allocation).
+
 ### license
 
 - Scope: NONE
@@ -702,6 +708,16 @@ MPP is a distributed computing framework provided by the TiFlash engine, which a
 - Default value: `23:59 +0000`
 - This variable is used to restrict the time window that the automatic update of statistics is permitted. For example, to only allow automatic statistics updates between 1AM and 3AM, set `tidb_auto_analyze_start_time='01:00 +0000'` and `tidb_auto_analyze_end_time='03:00 +0000'`.
 
+### tidb_auto_analyze_partition_batch_size <span class="version-mark">New in v6.4.0</span>
+
+- Scope: GLOBAL
+- Persists to cluster: Yes
+- Default value: `1`
+- Range: `[1, 1024]`
+- This variable specifies the number of partitions that TiDB [automatically analyzes](/statistics.md#automatic-update) when analyzing a partitioned table (which means automatically collecting statistics on a partitioned table).
+- If the value of this variable is smaller than the number of partitions, TiDB automatically analyzes all partitions of the partitioned table in multiple batches. If the value of this variable is greater than or equal to the number of partitions, TiDB analyzes all partitions of the partitioned table at the same time.
+- If the number of partitions of a partitioned table is far greater than this variable value and the auto-analyze takes a long time, you can increase the value of this variable to reduce the time consumption.
+
 ### tidb_auto_analyze_ratio
 
 - Scope: GLOBAL
@@ -1001,11 +1017,11 @@ MPP is a distributed computing framework provided by the TiFlash engine, which a
 
 > **Warning:**
 >
-> Currently, acceleration of `ADD INDEX` and `CREATE INDEX` is an experimental feature. It is not recommended that you use it in production environments.
+> Acceleration of `ADD INDEX` and `CREATE INDEX` is an experimental feature. It is not recommended that you use it in production environments.
 >
 > Currently, this feature is not compatible with [PITR (Point-in-time recovery)](/br/point-in-time-recovery.md). When using index acceleration, you need to ensure that there are no PITR log backup tasks running in the background. Otherwise, unexpected behaviors might occur, including:
 >
-> - If you start a log backup task first, and then add an index. The adding index process is not accelerated even if index acceleration is enabled. But the index is added in a slow way.
+> - If you start a log backup task first, and then add an index. The adding index process is not accelerated even if index acceleration is enabled. But the index is added in a slow way. Since the log backup task keeps running after being started, it means that the index acceleration feature is disabled in this case.
 > - If you start an index acceleration task first, and then start a log backup task. The log backup task returns an error. But the index acceleration is not affected.
 > - If you start a log backup task and an index acceleration task at the same time, the two tasks might not be aware of each other. This might result in PITR failing to back up the newly added index.
 
@@ -1022,15 +1038,16 @@ MPP is a distributed computing framework provided by the TiFlash engine, which a
 
 ### `tidb_ddl_flashback_concurrency` <span class="version-mark">New in v6.3.0</span>
 
-> **Warning:**
->
-> The feature controlled by this variable is not fully functional in the current TiDB version. Do not change the default value.
-
 - Scope: GLOBAL
 - Persists to cluster: Yes
 - Default value: `64`
 - Range: `[1, 256]`
-- This variable controls the concurrency of `flashback cluster`.
+
+<CustomContent platform="tidb">
+
+- This variable controls the concurrency of [`FLASHBACK CLUSTER TO TIMESTAMP`](/sql-statements/sql-statement-flashback-to-timestamp.md).
+
+</CustomContent>
 
 ### tidb_ddl_reorg_batch_size
 
@@ -1248,7 +1265,7 @@ MPP is a distributed computing framework provided by the TiFlash engine, which a
 ### tidb_enable_ddl
 
 - Scope: GLOBAL
-- Persists to cluster: No, only applicable to the current TiDB instance that you are connecting to. 
+- Persists to cluster: No, only applicable to the current TiDB instance that you are connecting to.
 - Default value: `ON`
 - Possible values: `OFF`, `ON`
 - This variable controls whether the corresponding TiDB server can run DDL statements or not.
@@ -1601,6 +1618,13 @@ MPP is a distributed computing framework provided by the TiFlash engine, which a
 - Determines whether to enable [Prepared Plan Cache](/sql-prepared-plan-cache.md). When it is enabled, the execution plans of `Prepare` and `Execute` are cached so that the subsequent executions skip optimizing the execution plans, which brings performance improvement.
 - This setting was previously a `tidb.toml` option (`prepared-plan-cache.enabled`), but changed to a system variable starting from TiDB v6.1.0.
 
+### tidb_enable_prepared_plan_cache_memory_monitor <span class="version-mark">New in v6.4.0</span>
+
+- Scope: SESSION | GLOBAL
+- Persists to cluster: Yes
+- Default value： `ON`
+- This variable controls whether to count the memory consumed by the execution plans cached in the Prepared Plan Cache. For details, see [Memory management of Prepared Plan Cache](/sql-prepared-plan-cache.md#memory-management-of-prepared-plan-cache).
+
 ### tidb_enable_pseudo_for_outdated_stats <span class="version-mark">New in v5.3.0</span>
 
 - Scope: SESSION | GLOBAL
@@ -1644,6 +1668,14 @@ MPP is a distributed computing framework provided by the TiFlash engine, which a
 - When the operator that reads data has only one thread left and the memory usage of a single SQL statement continues to exceed [`tidb_mem_quota_query`](/system-variables.md#tidb_mem_quota_query), this SQL statement triggers other memory control behaviors, such as spilling data to disk.
 
 </CustomContent>
+
+### tidb_enable_reuse_chunk <span class="version-mark">New in v6.4.0</span>
+
+- Scope: SESSION | GLOBAL
+- Persists to cluster: Yes
+- Default value: `ON`
+- Value options: `OFF`, `ON`
+- This variable controls whether TiDB enables chunk objects cache. If the value is `ON`, TiDB prefers to use the cached chunk object and only requests from the system if the requested object is not in the cache. If the value is `OFF`, TiDB requests chunk objects from the system directly.
 
 ### tidb_enable_slow_log
 
@@ -3169,6 +3201,46 @@ explain select * from t where age=5;
 - Default value: `OFF`
 - By default, Regions are split for a new table when it is being created in TiDB. After this variable is enabled, the newly split Regions are scattered immediately during the execution of the `CREATE TABLE` statement. This applies to the scenario where data need to be written in batches right after the tables are created in batches, because the newly split Regions can be scattered in TiKV beforehand and do not have to wait to be scheduled by PD. To ensure the continuous stability of writing data in batches, the `CREATE TABLE` statement returns success only after the Regions are successfully scattered. This makes the statement's execution time multiple times longer than that when you disable this variable.
 - Note that if `SHARD_ROW_ID_BITS` and `PRE_SPLIT_REGIONS` have been set when a table is created, the specified number of Regions are evenly split after the table creation.
+
+### tidb_server_memory_limit <span class="version-mark">New in v6.4.0</span>
+
+> **Warning:**
+>
+> Currently, `tidb_server_memory_limit` is still experimental. It is not recommended to use it in the production environment.
+
+- Scope: GLOBAL
+- Persists to cluster: Yes
+- Default value: `0`
+- Range:
+    - You can set the value in the percentage format, which means the percentage of the memory usage relative to the total memory. The value range is `[1%, 99%]`.
+    - You can also set the value in memory size in bytes. The value range is `[0, 9223372036854775807]`. The memory format with the units "KB|MB|GB|TB" is supported. The `0` value means no memory limit.
+- This variable specifies the memory limit for a TiDB instance. When the memory usage of TiDB reaches the limit, TiDB cancels the currently running SQL statement with the highest memory usage. After the SQL statement is successfully canceled, TiDB tries to call Golang GC to immediately reclaim memory to relieve memory stress as soon as possible.
+- Only the SQL statements with more memory usage than the [`tidb_server_memory_limit_sess_min_size`](/system-variables.md#tidb_server_memory_limit_sess_min_size-new-in-v640) limit are selected as the SQL statements to be canceled first.
+- Currently, TiDB cancels only one SQL statement at a time. After TiDB completely cancels a SQL statement and recovers resources, if the memory usage is still greater than the limit set by this variable, TiDB starts the next cancel operation.
+
+### tidb_server_memory_limit_gc_trigger <span class="version-mark">New in v6.4.0</span>
+
+> **Warning:**
+>
+> Currently, `tidb_server_memory_limit_gc_trigger` is still experimental. It is not recommended to use it in the production environment.
+
+- Scope: GLOBAL
+- Persists to cluster: Yes
+- Default value: `70%`
+- Range: `[50%, 99%]`
+- The threshold at which TiDB tries to trigger GC. When the memory usage of TiDB reaches the value of `tidb_server_memory_limit` \* the value of `tidb_server_memory_limit_gc_trigger`, TiDB will actively trigger a Golang GC operation. Only one GC operation will be triggered in one minute.
+
+### tidb_server_memory_limit_sess_min_size <span class="version-mark">New in v6.4.0</span>
+
+> **Warning:**
+>
+> Currently, `tidb_server_memory_limit_sess_min_size` is still experimental. It is not recommended to use it in the production environment.
+
+- Scope: GLOBAL
+- Persists to cluster: Yes
+- Default value: `134217728` (which is 128 MB)
+- Range: `[128, 9223372036854775807]`, in bytes
+- After you enable the memory limit, TiDB will terminate the SQL statement with the highest memory usage on the current instance. This variable specifies the minimum memory usage of the SQL statement to be terminated. If the memory usage of a TiDB instance that exceeds the limit is caused by too many sessions with low memory usage, you can properly lower the value of this variable to allow more sessions to be canceled.
 
 ### tidb_shard_allocate_step <span class="version-mark">New in v5.0</span>
 
