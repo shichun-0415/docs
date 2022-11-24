@@ -58,6 +58,7 @@ In addition, TiDB does not support the MySQL replication protocol, but provides 
 + `OPTIMIZE TABLE` syntax
 + `HANDLER` statement
 + `CREATE TABLESPACE` statement
++ "Session Tracker: Add GTIDs context to the OK packet"
 
 ## Features that are different from MySQL
 
@@ -151,6 +152,7 @@ In TiDB, all supported DDL changes are performed online. Compared with DDL opera
 * Table Partitioning supports `HASH`, `RANGE`, and `LIST` partitioning types. For the unsupported partition type, the `Warning: Unsupported partition type %s, treat as normal table` error might be output, where `%s` is a specific partition type.
 * Table Partitioning also supports `ADD`, `DROP`, and `TRUNCATE` operations. Other partition operations are ignored. The following Table Partition syntaxes are not supported:
     - `PARTITION BY KEY`
+    - `PARTITION BY LINEAR KEY`
     - `SUBPARTITION`
     - `{CHECK|TRUNCATE|OPTIMIZE|REPAIR|IMPORT|DISCARD|REBUILD|REORGANIZE|COALESCE} PARTITION`
 
