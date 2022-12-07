@@ -847,6 +847,15 @@ MPP is a distributed computing framework provided by the TiFlash engine, which a
 - This variable is used to control whether to enable the [baseline capturing](/sql-plan-management.md#baseline-capturing) feature. This feature depends on the statement summary, so you need to enable the statement summary before you use baseline capturing.
 - After this feature is enabled, the historical SQL statements in the statement summary are traversed periodically, and bindings are automatically created for SQL statements that appear at least twice.
 
+### tidb_cdc_write_source <span class="version-mark">New in v6.5.0</span>
+
+- Scope: SESSION
+- Persists to cluster: No
+- Type: Integer
+- Default value: `0`
+- Range: `[0, 15]`
+- When this variable is set to a value other than 0, data written in this session is considered to be written by TiCDC. This variable can only be modified by TiCDC. Do not manually modify this variable in any case.
+
 ### tidb_check_mb4_value_in_utf8
 
 <CustomContent platform="tidb-cloud">
@@ -997,18 +1006,18 @@ MPP is a distributed computing framework provided by the TiFlash engine, which a
 
 ### tidb_cost_model_version <span class="version-mark">New in v6.2.0</span>
 
-> **Warning:**
+> **Note:**
 >
-> - Cost Model Version 2 is currently an experimental feature. It is not recommended that you use it for production environments.
+> - Since TiDB v6.5.0, the newly created cluster uses Cost Model Version 2 by default. If you upgrade from a TiDB version earlier than v6.5.0 to v6.5.0 or later, the `tidb_cost_model_version` value does not change.
 > - Switching the version of the cost model might cause changes to query plans.
 
 - Scope: SESSION | GLOBAL
 - Persists to cluster: Yes
 - Type: Integer
-- Default value: `1`
-- Range: `[1, 2]`
-- TiDB v6.2.0 introduces the [Cost Model Version 2](/cost-model.md#cost-model-version-2), which is more accurate than the previous version in internal tests.
-- To enable the Cost Model Version 2, you can set the `tidb_cost_model_version` to `2`. If you set this variable to `1`, the Cost Model Version 1 will be used.
+- Default value: `2`
+- Value options:
+    - `1`: enables the Cost Model Version 1, which is used by default in TiDB v6.4.0 and earlier versions.
+    - `2`: enables the [Cost Model Version 2](/cost-model.md#cost-model-version-2), which is generally available in TiDB v6.5.0 and is more accurate than the version 1 in internal tests.
 - The version of cost model affects the plan decision of optimizer. For more details, see [Cost Model](/cost-model.md).
 
 ### tidb_current_ts
@@ -1034,14 +1043,13 @@ MPP is a distributed computing framework provided by the TiFlash engine, which a
 - Scope: GLOBAL
 - Persists to cluster: Yes
 - Type: Boolean
-- Default value: `OFF`
-- This variable controls whether to enable the acceleration of `ADD INDEX` and `CREATE INDEX` DDl operations to improve the speed of backfilling when creating an index. If this variable is enabled, TiDB uses a more effective way to create an index.
+- Default value: `ON`
+- This variable controls whether to enable the acceleration of `ADD INDEX` and `CREATE INDEX` to improve the speed of backfilling for index creation. Setting this variable value to `ON` can bring performance improvement for index creation on tables with a large amount of data.
+- To verify whether a completed `ADD INDEX` operation is accelerated, you can execute the [`ADMIN SHOW DDL JOBS`](/sql-statements/sql-statement-admin-show-ddl.md#admin-show-ddl-jobs) statement to see whether `ingest` is displayed in the `JOB_TYPE` column.
 
 <CustomContent platform="tidb">
 
 > **Warning:**
->
-> Acceleration of `ADD INDEX` and `CREATE INDEX` is an experimental feature. It is not recommended that you use it in production environments.
 >
 > Currently, this feature is not compatible with [PITR (Point-in-time recovery)](/br/backup-and-restore-overview.md). When using index acceleration, you need to ensure that there are no PITR log backup tasks running in the background. Otherwise, unexpected behaviors might occur, including:
 >
@@ -3641,6 +3649,20 @@ For details, see [Identify Slow Queries](/identify-slow-queries.md).
 - Scope: SESSION
 - Default value: ""
 - This variable is used to set the time point at which the data is read by the session. For example, when you set the variable to "2017-11-11 20:20:20" or a TSO number like "400036290571534337", the current session reads the data of this moment.
+
+### tidb_source_id <span class="version-mark">New in v6.5.0</span>
+
+- Scope: GLOBAL
+- Persists to cluster: Yes
+- Type: Integer
+- Default value: `1`
+- Range: `[1, 15]`
+
+<CustomContent platform="tidb">
+
+- This variable is used to configure the different cluster IDs in a [bi-direcional replication](/ticdc/manage-ticdc.md#bi-directional-replication) cluster.
+
+</CustomContent>
 
 ### tidb_stats_cache_mem_quota <span class="version-mark">New in v6.1.0</span>
 
