@@ -4,7 +4,7 @@
 - [Docs Home](https://docs.pingcap.com/)
 - About TiDB
   - [TiDB Introduction](/overview.md)
-  - [TiDB 6.5 Release Notes](/releases/release-6.5.0.md)
+  - [TiDB 6.6 Release Notes](/releases/release-6.6.0.md)
   - [Features](/basic-features.md)
   - [MySQL Compatibility](/mysql-compatibility.md)
   - [TiDB Limitations](/tidb-limitations.md)
@@ -159,6 +159,11 @@
       - [Back up and Restore Data Using Dumpling and TiDB Lightning](/backup-and-restore-using-dumpling-lightning.md)
       - [Back Up and Restore RawKV](/br/rawkv-backup-and-restore.md)
       - [Incremental Backup and Restore](/br/br-incremental-guide.md)
+  - Cluster Disaster Recovery (DR)
+    - [DR Solutions Overview](/dr-solution-introduction.md)
+    - [Primary-Secondary DR](/dr-secondary-cluster.md)
+    - [Multi-Replica Cluster DR](/dr-multi-replica.md)
+    - [BR-based DR](/dr-backup-restore.md)
   - [Resource Control](/tidb-resource-control.md)
   - [Configure Time Zone](/configure-time-zone.md)
   - [Daily Checklist](/daily-check.md)
@@ -575,6 +580,7 @@
     - [RocksDB Overview](/storage-engine/rocksdb-overview.md)
     - [Titan Overview](/storage-engine/titan-overview.md)
     - [Titan Configuration](/storage-engine/titan-configuration.md)
+    - [Partitioned Raft KV](/partitioned-raft-kv.md)
   - Storage Engine - TiFlash
     - [Overview](/tiflash/tiflash-overview.md)
     - [Create TiFlash Replicas](/tiflash/create-tiflash-replicas.md)
@@ -939,6 +945,8 @@
   - [Release Timeline](/releases/release-timeline.md)
   - [TiDB Versioning](/releases/versioning.md)
   - [TiDB Installation Packages](/binary-package.md)
+  - v6.6
+    - [6.6.0-DMR](/releases/release-6.6.0.md)
   - v6.5
     - [6.5.0](/releases/release-6.5.0.md)
   - v6.4

@@ -1127,8 +1127,7 @@ MPP is a distributed computing framework provided by the TiFlash engine, which a
 
 > **Warning:**
 >
->
-> Currently, this feature is not fully compatible with [altering multiple columns or indexes in a single `ALTER TABLE` statement](/sql-statements/sql-statement-alter-table.md). When adding a unique index with the index acceleration, you need to avoid altering other columns or indexes in the same statement.
+> Currently, this feature is not fully compatible with adding a unique index. When adding a unique index, it is recommended to disable the index acceleration feature (set `tidb_ddl_enable_fast_reorg` to `OFF`).
 >
 > When [PITR (Point-in-time recovery)](/br/backup-and-restore-overview.md) is disabled, the speed of adding indexes is expected to be about 10 times that in v6.1.0. However, there is no performance improvement when both PITR and index acceleration are enabled. To optimize performance, it is recommended that you disable PITR, add indexes in a quick way, then enable PITR and perform a full backup. Otherwise, the following behaviors might occur:
 >
@@ -1389,7 +1388,7 @@ MPP is a distributed computing framework provided by the TiFlash engine, which a
 - Persists to cluster: No, only applicable to the current TiDB instance that you are connecting to.
 - Default value: `ON`
 - Possible values: `OFF`, `ON`
-- This variable controls whether the corresponding TiDB server can run DDL statements or not.
+- This variable controls whether the corresponding TiDB instance can become a DDL owner or not. If there is only one TiDB instance in the current TiDB cluster, you cannot prevent it from becoming a DDL owner, which means you cannot set it to `OFF`.
 
 ### tidb_enable_collect_execution_info
 
@@ -1535,16 +1534,20 @@ MPP is a distributed computing framework provided by the TiFlash engine, which a
 - Scope: GLOBAL
 - Persists to cluster: Yes
 - Type: Boolean
-- Default value: `OFF`
-- This variable is used for an unreleased feature. **Do not change the variable value**.
+- Default value: `ON`
+- This variable controls whether to enable historical statistics. The default value changes from `OFF` to `ON`, which means that historical statistics are enabled by default.
 
-### `tidb_enable_historical_stats_for_capture`
+### tidb_enable_historical_stats_for_capture
+
+> **Warning:**
+>
+> The feature controlled by this variable is not fully functional in the current TiDB version. Do not change the default value.
 
 - Scope: GLOBAL
 - Persists to cluster: Yes
 - Type: Boolean
 - Default value: `OFF`
-- This variable is used for an unreleased feature. **Do not change the variable value**.
+- This variable controls whether the information captured by `PLAN REPLAYER CAPTURE` includes historical statistics by default. The default value `OFF` means that historical statistics are not included by default.
 
 ### tidb_enable_index_merge <span class="version-mark">New in v4.0</span>
 
@@ -1701,7 +1704,7 @@ MPP is a distributed computing framework provided by the TiFlash engine, which a
 - User scenarios:
 
     - In all OLTP scenarios, it is recommended to use the method of paging.
-    - For read queries that use `IndexLookup` and `Limit` and that `Limit` cannot be pushed down to `IndexScan`, there might be high latency for the read queries and high usage for TiKV `Unified read pool CPU`. In such cases, because the `Limit` operator only requires a small set of data, if you set `tidb_enable_paging` to `ON`, TiDB processes less data, which reduces query latency and resource consumption.
+    - For read queries that use `IndexLookup` and `Limit` and that `Limit` cannot be pushed down to `IndexScan`, there might be high latency for the read queries and high usage for TiKV `Unified read pool CPU`. In such cases, because the `Limit` operator only requires a small set of data, if you set [`tidb_enable_paging`](#tidb_enable_paging-new-in-v540) to `ON`, TiDB processes less data, which reduces query latency and resource consumption.
     - In scenarios such as data export using [Dumpling](/dumpling-overview.md) and full table scan, enabling paging can effectively reduce the memory consumption of TiDB processes.
 
 > **Note:**
@@ -1749,8 +1752,8 @@ MPP is a distributed computing framework provided by the TiFlash engine, which a
 - Scope: SESSION | GLOBAL
 - Persists to cluster: Yes
 - Type: Boolean
-- Default value: `OFF`
-- This variable controls whether to enable the [`PLAN REPLAYER CAPTURE` feature](/sql-plan-replayer.md#use-plan-replayer-capture-to-capture-target-plans). The default value `OFF` means to disable the `PLAN REPLAYER CAPTURE` feature.
+- Default value: `ON`
+- This variable controls whether to enable the [`PLAN REPLAYER CAPTURE` feature](/sql-plan-replayer.md#use-plan-replayer-capture-to-capture-target-plans). The default value `ON` means to enable the `PLAN REPLAYER CAPTURE` feature.
 
 </CustomContent>
 
@@ -1929,11 +1932,11 @@ Query OK, 0 rows affected (0.09 sec)
 - Scope: GLOBAL
 - Persists to cluster: Yes
 - Type: Boolean
-- Default value: `ON`
+- Default value: `OFF`
 
 <CustomContent platform="tidb">
 
-- This variable is used to dynamically control whether the telemetry collection in TiDB is enabled. By setting the value to `OFF`, the telemetry collection is disabled. If the [`enable-telemetry`](/tidb-configuration-file.md#enable-telemetry-new-in-v402) TiDB configuration item is set to `false` on all TiDB instances, the telemetry collection is always disabled and this system variable will not take effect. See [Telemetry](/telemetry.md) for details.
+- This variable is used to dynamically control whether the telemetry collection in TiDB is enabled. In the current version, the telemetry is disabled by default. If the [`enable-telemetry`](/tidb-configuration-file.md#enable-telemetry-new-in-v402) TiDB configuration item is set to `false` on all TiDB instances, the telemetry collection is always disabled and this system variable will not take effect. See [Telemetry](/telemetry.md) for details.
 
 </CustomContent>
 
@@ -2821,7 +2824,7 @@ For a system upgraded to v5.0 from an earlier version, if you have not modified 
 
 ![Paging size impact on TPCH](/media/paging-size-impact-on-tpch.png)
 
-As shown in this diagram, when [`tidb_enable_paging`](/system-variables.md#tidb_max_paging_size-new-in-v630) is enabled, the performance of TPCH is affected by the settings of `tidb_min_paging_size` and [`tidb_max_paging_size`](/system-variables.md#tidb_max_paging_size-new-in-v630). The vertical axis is the execution time, and it is the smaller the better.
+As shown in this diagram, when [`tidb_enable_paging`](#tidb_enable_paging-new-in-v540) is enabled, the performance of TPCH is affected by the settings of `tidb_min_paging_size` and [`tidb_max_paging_size`](#tidb_max_paging_size-new-in-v630). The vertical axis is the execution time, and it is the smaller the better.
 
 ### tidb_mpp_store_fail_ttl
 
